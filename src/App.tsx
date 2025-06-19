@@ -7,8 +7,9 @@ import { addTodo, deleteTodo, getTodos, USER_ID } from './api/todos';
 import { Todo } from './types/Todo';
 import { TodoList } from './components/TodoList/TodoList';
 import { ERROR_MESSAGES, FILTERS } from './utils/constants';
-import cn from 'classnames';
 import { Footer } from './components/Footer/Footer';
+import { Header } from './components/Header/Header';
+import cn from 'classnames';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -169,31 +170,14 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {/* this button should have `active` class only if all todos are completed */}
-          <button
-            type="button"
-            className={cn('todoapp__toggle-all', {
-              active: completedCount === todos.length,
-            })}
-            data-cy="ToggleAllButton"
-          />
-
-          {/* Add a todo on form submit */}
-          <form onSubmit={handleAdd}>
-            <input
-              ref={inputRef}
-              value={title}
-              name="title"
-              data-cy="NewTodoField"
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              onChange={e => setTitle(e.target.value)}
-              disabled={tempTodo ? true : false}
-            />
-          </form>
-        </header>
+        <Header
+          isAllTodosCompleted={completedCount === todos.length}
+          title={title}
+          setTitle={setTitle}
+          onAdd={handleAdd}
+          tempTodo={tempTodo}
+          ref={inputRef}
+        />
         <TodoList
           todos={filtredTodos}
           tempTodo={tempTodo}
@@ -217,13 +201,18 @@ export const App: React.FC = () => {
       {/* Add the 'hidden' class to hide the message smoothly */}
       <div
         data-cy="ErrorNotification"
-        className={`notification is-danger is-light has-text-weight-normal ${!error ? 'hidden' : ''}`}
+        className={cn(
+          'notification is-danger is-light has-text-weight-normal',
+          {
+            hidden: !error,
+          },
+        )}
       >
         <button
           data-cy="HideErrorButton"
           type="button"
           className="delete"
-          onClick={() => deleteErrors()}
+          onClick={deleteErrors}
         />
         {/* show only one message at a time */}
         {error}
